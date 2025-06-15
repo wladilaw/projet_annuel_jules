@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  cvs       CV[]
+  jobOffers JobOffer[]
+}
+
+model CV {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  fileName    String
+  fileType    String
+  content     String // Stockera le contenu parsé (ex: texte, sections, etc.)
+  uploadedAt  DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model JobOffer {
+  id           String      @id @default(uuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  title        String
+  description  String
+  company      String
+  location     String
+  contractType String?
+  url          String?
+  importedAt   DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  companyInfoId String?     @unique
+  companyInfo CompanyInfo? @relation(fields: [companyInfoId], references: [id])
+}
+
+model CompanyInfo {
+  id          String   @id @default(uuid())
+  companyName String   @unique
+  website     String?
+  values      String?
+  news        String?
+  customNotes String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  jobOffer    JobOffer?
+} 
